@@ -1,4 +1,4 @@
-package com.example.Project.UserRegistration.Controller.Model;
+package com.example.Project.Model;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -21,12 +21,12 @@ public class UserPrincipal implements UserDetails {
 
     @Override
     public String getPassword() {
-        return user.getUserpassword();
+        return user.getPassword();
     }
 
     @Override
     public String getUsername() {
-        return user.getUsername();
+        return user.getUserName();
     }
 
     @Override

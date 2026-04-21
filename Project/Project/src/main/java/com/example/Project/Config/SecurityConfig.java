@@ -1,4 +1,4 @@
-package com.example.Project.UserRegistration.Controller.Config;
+package com.example.Project.Config;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;

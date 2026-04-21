@@ -1,7 +1,7 @@
-package com.example.Project.UserRegistration.Controller;
+package com.example.Project.Controller;
 
-import com.example.Project.UserRegistration.Controller.Model.User;
-import com.example.Project.UserRegistration.Controller.Service.UserService;
+import com.example.Project.Model.User;
+import com.example.Project.Service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
@@ -24,20 +24,22 @@ public class UserController {
 
     @PostMapping("/regis")
     public String res(
-            @RequestParam String username,
+                      @RequestParam String userName,
                       @RequestParam String password,
                       @RequestParam String email,
-                      @RequestParam long Phno,
+                      @RequestParam long phNo,
                       @RequestParam String city,
+                      @RequestParam int pincode,
                       @RequestParam String state,
                       @RequestParam String country){
 
         User user=new User();
-        user.setUsername(username);
-        user.setUserpassword(encoder.encode(password));
+        user.setUserName(userName);
+        user.setPassword(encoder.encode(password));
         user.setEmail(email);
-        user.setPhno(Phno);
+        user.setPhNo(phNo);
         user.setCity(city);
+        user.setPincode(pincode);
         user.setState(state);
         user.setCountry(country);
 

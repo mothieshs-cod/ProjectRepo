@@ -1,7 +1,7 @@
-package com.example.Project.UserRegistration.Controller.Service;
+package com.example.Project.Service;
 
-import com.example.Project.UserRegistration.Controller.Model.User;
-import com.example.Project.UserRegistration.Controller.Repo.UserRepo;
+import com.example.Project.Model.User;
+import com.example.Project.Repo.UserRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
@@ -29,6 +29,6 @@ public class UserService {
         User user = repo.findByEmail(email);
         if (user == null) return false;
 
-        return encoder.matches(password, user.getUserpassword());
+        return encoder.matches(password, user.getPassword());
     }
 }

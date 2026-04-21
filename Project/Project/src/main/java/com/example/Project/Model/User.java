@@ -1,9 +1,6 @@
-package com.example.Project.UserRegistration.Controller.Model;
+package com.example.Project.Model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
@@ -16,13 +13,14 @@ public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private  int userid;
-    private  String username;
-    private String userpassword;
+    private  int userId;
+    private  String userName;
+    private String password;
+    @Column(unique=true)
     private  String email;
-    private long Phno;
+    private long phNo;
     private String city;
+    private int pincode;
     private  String state;
     private  String country;
-
 }
