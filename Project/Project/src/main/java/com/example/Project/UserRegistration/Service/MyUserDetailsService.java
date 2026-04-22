@@ -1,8 +1,8 @@
-package com.example.Project.Service;
+package com.example.Project.UserRegistration.Service;
 
-import com.example.Project.Model.User;
-import com.example.Project.Model.UserPrincipal;
-import com.example.Project.Repo.UserRepo;
+import com.example.Project.UserRegistration.Model.User;
+import com.example.Project.UserRegistration.Model.UserPrincipal;
+import com.example.Project.UserRegistration.Repo.UserRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.security.core.userdetails.UserDetails;

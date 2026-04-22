@@ -1,12 +1,11 @@
-package com.example.Project.Controller;
+package com.example.Project.UserRegistration.Controller;
 
-import com.example.Project.Model.User;
-import com.example.Project.Service.UserService;
+import com.example.Project.UserRegistration.Model.User;
+import com.example.Project.UserRegistration.Service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -16,11 +15,6 @@ public class UserController {
     UserService userService;
 
     private BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(12);
-
-    @GetMapping("/data")
-    public List<User> getUSer(){
-        return  userService.getUsers();
-    }
 
     @PostMapping("/regis")
     public String res(
@@ -50,7 +44,7 @@ public class UserController {
     @PostMapping("/login")
     public String login(@RequestBody Map<String, String> loginData) {
         String email = loginData.get("email");
-        String password = loginData.get("password"); // Keep keys simple in Postman
+        String password = loginData.get("password");
 
         if(userService.isLogin(email, password)){
             return "User LoggedIn";

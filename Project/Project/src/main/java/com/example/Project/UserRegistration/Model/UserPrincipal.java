@@ -1,4 +1,4 @@
-package com.example.Project.Model;
+package com.example.Project.UserRegistration.Model;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;

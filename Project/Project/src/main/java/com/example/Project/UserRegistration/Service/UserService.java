@@ -1,15 +1,13 @@
-package com.example.Project.Service;
+package com.example.Project.UserRegistration.Service;
 
-import com.example.Project.Model.User;
-import com.example.Project.Repo.UserRepo;
+import com.example.Project.UserRegistration.Model.User;
+import com.example.Project.UserRegistration.Repo.UserRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import java.util.*;
 
 @Service
-@Component
 public class UserService {
 
     @Autowired
