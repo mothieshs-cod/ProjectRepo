@@ -23,22 +23,12 @@ public class MyUserDetailsService implements UserDetailsService {
         return repo.findAll();
     }
 
-
-
-
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-
-
-        User user=repo.findByusername(username);
-        if(user==null){
-            System.out.println("404 error");
-            throw new UsernameNotFoundException("User 404");
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        User user = repo.findByEmail(email);
+        if (user == null) {
+            throw new UsernameNotFoundException("User not found with email: " + email);
         }
         return new UserPrincipal(user);
-
-
     }
-
-
 }
