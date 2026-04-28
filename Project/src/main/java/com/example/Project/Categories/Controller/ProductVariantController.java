@@ -44,6 +44,11 @@ public class ProductVariantController {
         return service.create(productId, variant);
     }
 
+    @GetMapping("/search")
+    public List<ProductVariant> getAllProductVariant(){
+        return service.getAllProductVariant();
+    }
+
     @GetMapping("/product/{productId}")
     public List<ProductVariant> getByProduct(@PathVariable String productId) {
         return service.getByProduct(productId);

@@ -58,4 +58,8 @@ public class ProductVariantService {
         variantRepository.deleteById(variantId);
         return true;
     }
+
+    public List<ProductVariant> getAllProductVariant() {
+        return variantRepository.findAll();
+    }
 }
