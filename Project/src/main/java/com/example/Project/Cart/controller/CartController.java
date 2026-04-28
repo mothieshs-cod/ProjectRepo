@@ -1,4 +1,5 @@
 package com.example.Project.Cart.controller;
+
 import com.example.Project.Cart.model.Cart;
 import java.util.*;
 import com.example.Project.Cart.service.CartService;
@@ -7,32 +8,40 @@ import org.springframework.web.bind.annotation.*;
 
 
 @RestController
-@RequestMapping("/api/cart") // Good practice to version/path your API
+@RequestMapping("/api/cart")
 public class CartController {
 
-    @Autowired
-    CartService service;
+    private final CartService service;
 
-    @GetMapping("/all")
-    public List<Cart> getCart() {
-        return service.getcart();
+    public CartController(CartService service) {
+        this.service = service;
     }
 
-    @PostMapping("/add")
-    public Cart addToCart(@RequestBody Cart cart) {
-        return service.addCart(cart);
+    @GetMapping("/{userId}")
+    public Cart getCart(@PathVariable int userId) {
+        return service.getCart(userId);
     }
 
-    @PutMapping("/update/{id}")
-    public Cart updateCart(@PathVariable int id, @RequestBody Cart cart) {
-        return service.updateCart(id, cart);
+    @PostMapping("/{userId}/add")
+    public Cart addToCart(@PathVariable int userId,
+                          @RequestParam String variantId,
+                          @RequestParam int quantity) {
+
+        return service.addToCart(userId, variantId, quantity);
     }
 
+    @DeleteMapping("/{userId}/item/{cartItemId}")
+    public Cart removeItem(@PathVariable int userId,
+                           @PathVariable Long cartItemId) {
 
-    @DeleteMapping("/delete/{id}")
-    public String deleteFromCart(@PathVariable int id) {
-        return service.deleteCart(id);
+        return service.removeItem(userId, cartItemId);
+    }
+
+    @PutMapping("/{userId}/item/{cartItemId}")
+    public Cart updateQuantity(@PathVariable int userId,
+                               @PathVariable Long cartItemId,
+                               @RequestParam int quantity) {
+
+        return service.updateQuantity(userId, cartItemId, quantity);
     }
 }
-
-

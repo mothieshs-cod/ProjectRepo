@@ -1,33 +1,24 @@
 package com.example.Project.Cart.model;
 
+import jakarta.persistence.*;
+import lombok.*;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
+import java.util.List;
 
 @Entity
-@Data               // Adds Getters, Setters, toString, Equals, and Hashcode
-@NoArgsConstructor  // Required by JPA
-@AllArgsConstructor // Required for @Builder and manual creation
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 @Builder
 public class Cart {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer itemId;
+    private Long cartId;
 
-    private int productId;
-    private String Description;
-    private boolean InStock;
-    private int quantity;
-    private int ListPrice;
-    private int totCost;
+    private Integer userId;
 
+    @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<CartItem> items;
 }
-

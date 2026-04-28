@@ -1,59 +1,107 @@
 package com.example.Project.Cart.service;
 
 import com.example.Project.Cart.model.Cart;
+import com.example.Project.Cart.model.CartItem;
 import com.example.Project.Cart.model.Order;
 import com.example.Project.Cart.model.OrderItem;
-import com.example.Project.Cart.repository.CartRepo;
+import com.example.Project.Cart.repository.CartRepository;
 import com.example.Project.Cart.repository.OrderRepo;
+import com.example.Project.Categories.model.ProductVariant;
+import com.example.Project.Categories.repository.ProductVariantRepository;
 import jakarta.transaction.Transactional;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
+@Transactional
 public class OrderService {
 
-    @Autowired
-    private OrderRepo orderRepo;
+    private final CartRepository cartRepository;
+    private final OrderRepo orderRepo;
+    private final ProductVariantRepository variantRepo;
+    private final CartService cartService;
 
-    @Autowired
-    private CartRepo cartRepo;
+    public OrderService(
+            CartRepository cartRepository,
+            OrderRepo orderRepo,
+            ProductVariantRepository variantRepo,
+            CartService cartService) {
 
-    @Transactional
-    public Order processCheckout(Order orderRequest) {
-        // 1. Fetch everything from the user's current cart
-        List<Cart> cartItems = cartRepo.findAll();
+        this.cartRepository = cartRepository;
+        this.orderRepo = orderRepo;
+        this.variantRepo = variantRepo;
+        this.cartService = cartService;
+    }
 
-        if(cartItems.isEmpty()) {
-            throw new RuntimeException("Cannot checkout an empty cart!");
+
+    public List<Order> getOrdersByUser(Integer userId) {
+        return orderRepo.findByUserId(userId);
+    }
+
+    public Order placeOrder(int userId, Order orderRequest) {
+
+        Cart cart = cartService.getCart(userId);
+
+        if (cart.getItems() == null || cart.getItems().isEmpty()) {
+            throw new RuntimeException("Cart is empty");
         }
 
-        // 2. Convert Cart items into OrderItem snapshots
         List<OrderItem> orderItems = new ArrayList<>();
-        int finalTotal = 0;
+        double total = 0;
 
-        for (Cart cart : cartItems) {
-            OrderItem oi = new OrderItem();
-            oi.setProductId(cart.getProductId());
-            oi.setDescription(cart.getDescription());
-            oi.setQuantity(cart.getQuantity());
-            oi.setPricePerUnit(cart.getListPrice());
-            orderItems.add(oi);
+        for (CartItem item : cart.getItems()) {
 
-            finalTotal += cart.getTotCost();
+            ProductVariant variant = item.getProductVariant();
+
+            if (variant.getStockQuantity() < item.getQuantity()) {
+                throw new RuntimeException(
+                        "Out of stock for variant: " + variant.getVariantId()
+                );
+            }
+
+            variant.setStockQuantity(
+                    variant.getStockQuantity() - item.getQuantity()
+            );
+            variantRepo.save(variant);
+
+            double price = variant.getPrice();
+
+            OrderItem orderItem = OrderItem.builder()
+                    .variantId(variant.getVariantId())
+                    .quantity(item.getQuantity())
+                    .price(price)
+                    .build();
+
+            total += price * item.getQuantity();
+            orderItems.add(orderItem);
         }
 
-        // 3. Set the calculated values into the order
-        orderRequest.setItems(orderItems);
-        orderRequest.setTotalBill(finalTotal);
+        Order order = Order.builder()
+                .userId(userId)
+                .totalAmount(total)
+                .status("Processing")
+                .createdAt(LocalDateTime.now())
+                .fullName(orderRequest.getFullName())
+                .address(orderRequest.getAddress())
+                .mobileNumber(orderRequest.getMobileNumber())
+                .city(orderRequest.getCity())
+                .pincode(orderRequest.getPincode())
+                .state(orderRequest.getState())
+                .country(orderRequest.getCountry())
+                .cardType(orderRequest.getCardType())
+                .cardNumber(orderRequest.getCardNumber())
+                .expiryDate(orderRequest.getExpiryDate())
+                .items(orderItems)
+                .build();
 
-        // 4. Save the Order (This automatically saves OrderItems due to CascadeType.ALL)
-        Order savedOrder = orderRepo.save(orderRequest);
+        orderItems.forEach(item -> item.setOrder(order));
 
-        // 5. CLEAR the cart so it's empty for the next session
-        cartRepo.deleteAll();
+        cart.getItems().clear();
+        cartRepository.save(cart);
 
-        return savedOrder;
+        return orderRepo.save(order);
     }
 }

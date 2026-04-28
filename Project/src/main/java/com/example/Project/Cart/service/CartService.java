@@ -1,8 +1,10 @@
 package com.example.Project.Cart.service;
 
 import com.example.Project.Cart.model.Cart;
-import com.example.Project.Cart.repository.CartRepo;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.example.Project.Cart.model.CartItem;
+import com.example.Project.Cart.repository.CartRepository;
+import com.example.Project.Categories.model.ProductVariant;
+import com.example.Project.Categories.repository.ProductVariantRepository;
 import org.springframework.stereotype.Service;
 import java.util.*;
 
@@ -10,42 +12,75 @@ import java.util.*;
 @Service
 public class CartService {
 
-    @Autowired
-    CartRepo repo;
+    private final CartRepository cartRepository;
+    private final ProductVariantRepository variantRepository;
 
-    // GET ALL
-    public List<Cart> getcart() {
-        return repo.findAll();
+    public CartService(CartRepository cartRepository,
+                       ProductVariantRepository variantRepository) {
+        this.cartRepository = cartRepository;
+        this.variantRepository = variantRepository;
     }
 
-    // ADD / CREATE
-    public Cart addCart(Cart cart) {
-        // Calculate total cost before saving
-        cart.setTotCost(cart.getListPrice() * cart.getQuantity());
-        return repo.save(cart);
+    public Cart getOrCreateCart(int userId) {
+
+        return cartRepository.findByUserId(userId)
+                .orElseGet(() -> cartRepository.save(
+                        Cart.builder()
+                                .userId(userId)
+                                .items(new ArrayList<>())
+                                .build()
+                ));
     }
 
-    // UPDATE based on Item ID
-    public Cart updateCart(int itemId, Cart details) {
-        Cart existingCart = repo.findById(itemId)
-                .orElseThrow(() -> new RuntimeException("Item not found"));
+    public Cart addToCart(int userId, String variantId, int quantity) {
 
-        // Update fields using Lombok setters
-        existingCart.setProductId(details.getProductId());
-        existingCart.setDescription(details.getDescription());
-        existingCart.setInStock(details.isInStock());
-        existingCart.setQuantity(details.getQuantity());
-        existingCart.setListPrice(details.getListPrice());
+        Cart cart = getOrCreateCart(userId);
 
-        // Recalculate total cost
-        existingCart.setTotCost(existingCart.getListPrice() * existingCart.getQuantity());
+        ProductVariant variant = variantRepository.findById(variantId)
+                .orElseThrow(() -> new RuntimeException("Variant not found"));
 
-        return repo.save(existingCart);
+        Optional<CartItem> existingItem = cart.getItems().stream()
+                .filter(item -> item.getProductVariant().getVariantId().equals(variantId))
+                .findFirst();
+
+        if (existingItem.isPresent()) {
+            existingItem.get().setQuantity(existingItem.get().getQuantity() + quantity);
+        } else {
+            CartItem item = CartItem.builder()
+                    .cart(cart)
+                    .productVariant(variant)
+                    .quantity(quantity)
+                    .build();
+
+            cart.getItems().add(item);
+        }
+
+        return cartRepository.save(cart);
     }
 
-    // DELETE
-    public String deleteCart(int itemId) {
-        repo.deleteById(itemId);
-        return "Item " + itemId + " deleted successfully";
+    public Cart removeItem(int userId, Long cartItemId) {
+
+        Cart cart = getOrCreateCart(userId);
+
+        cart.getItems().removeIf(item -> item.getCartItemId().equals(cartItemId));
+
+        return cartRepository.save(cart);
+    }
+
+    public Cart updateQuantity(int userId, Long cartItemId, int quantity) {
+
+        Cart cart = getOrCreateCart(userId);
+
+        cart.getItems().forEach(item -> {
+            if (item.getCartItemId().equals(cartItemId)) {
+                item.setQuantity(quantity);
+            }
+        });
+
+        return cartRepository.save(cart);
+    }
+
+    public Cart getCart(int userId) {
+        return getOrCreateCart(userId);
     }
 }

@@ -34,14 +34,16 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/regis", "/login", "/register.html", "/dashboard.html").permitAll()
-                        .requestMatchers("/css/**", "/js/**").permitAll()
-                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                        .anyRequest().authenticated()
-                )
-                .formLogin(Customizer.withDefaults())
-                .httpBasic(Customizer.withDefaults());
+//                        .requestMatchers("/regis", "/login", "/register.html", "/dashboard.html").permitAll()
+//                        .requestMatchers("/css/**", "/js/**").permitAll()
+//                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+//                        .anyRequest().authenticated()
+//                )
+//                .formLogin(Customizer.withDefaults())
+//                .httpBasic(Customizer.withDefaults());
 
+                        .anyRequest().permitAll()
+                );
         return http.build();
     }
 }

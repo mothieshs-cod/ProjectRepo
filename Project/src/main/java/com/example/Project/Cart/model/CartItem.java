@@ -1,5 +1,6 @@
 package com.example.Project.Cart.model;
 
+import com.example.Project.Categories.model.ProductVariant;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
@@ -10,20 +11,20 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class OrderItem {
+public class CartItem {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long orderItemId;
-
-    private String variantId;
+    private Long cartItemId;
 
     private int quantity;
 
-    private Double price;
+    @ManyToOne
+    @JoinColumn(name = "cart_id")
+    @JsonIgnore
+    private Cart cart;
 
     @ManyToOne
-    @JoinColumn(name = "order_id")
-    @JsonIgnore
-    private Order order;
+    @JoinColumn(name = "variant_id")
+    private ProductVariant productVariant;
 }

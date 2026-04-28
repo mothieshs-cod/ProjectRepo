@@ -1,32 +1,42 @@
 package com.example.Project.Cart.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import java.util.*;
+import lombok.*;
+
+import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
-@Data
-@Table(name = "orders")
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Table(name = "orders")
 public class Order {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer orderId;
+    private Long orderId;
 
-    // User/Billing Details
-    private String customerName;
-    private String email;
+    private Integer userId;
+
+    private Double totalAmount;
+    private String status;
+    private LocalDateTime createdAt;
+
+    private String fullName;
     private String address;
-    private String paymentMode;
-    private Integer totalBill;
+    private String mobileNumber;
+    private String city;
+    private String pincode;
+    private String state;
+    private String country;
 
-    // This links the Order to its items
-    @OneToMany(cascade = CascadeType.ALL)
-    @JoinColumn(name = "fk_order_id", referencedColumnName = "orderId")
+    private String cardType;
+    private String cardNumber;
+    private String expiryDate;
+
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
     private List<OrderItem> items;
 }
