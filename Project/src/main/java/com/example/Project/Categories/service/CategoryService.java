@@ -36,6 +36,7 @@ public class CategoryService {
 
         existing.setName(updatedCategory.getName());
         existing.setDescription(updatedCategory.getDescription());
+        existing.setImageUrl(updatedCategory.getImageUrl());
 
         return repository.save(existing);
     }

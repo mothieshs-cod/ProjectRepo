@@ -26,6 +26,10 @@ public class Category {
 
     private String description;
 
+    @NotBlank(message = "Image URL cannot be empty")
+    @Column(nullable = false)
+    private String imageUrl;
+
     @OneToMany(mappedBy = "category", cascade = CascadeType.ALL)
     @JsonIgnore
     private List<Product> products;
