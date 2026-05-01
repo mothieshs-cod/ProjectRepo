@@ -1,6 +1,7 @@
 package com.example.Project.UserRegistration.Model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 import java.util.HashSet;
@@ -18,14 +19,30 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private  int userId;
+
+    @NotNull(message = "Name is required")
     private  String userName;
+
+    @NotNull(message = "Password is required")
     private String password;
+
     @Column(unique=true)
+    @NotNull(message = "Email ID is required")
     private  String email;
+
+    @NotNull(message = "Phone Number is required")
     private long phNo;
+
+    @NotNull(message = "City is required")
     private String city;
+
+    @NotNull(message = "Pin code is required")
     private int pincode;
+
+    @NotNull(message = "State is required")
     private  String state;
+
+    @NotNull(message = "Country is required")
     private  String country;
 
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
