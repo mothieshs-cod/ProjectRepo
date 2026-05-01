@@ -1,32 +1,99 @@
 package com.example.Project.UserRegistration.Service;
 
+import com.example.Project.UserRegistration.Dto.RegisterRequest;
+import com.example.Project.UserRegistration.Model.Role;
 import com.example.Project.UserRegistration.Model.User;
-import com.example.Project.UserRegistration.Repo.UserRepo;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.example.Project.UserRegistration.Repository.RoleRepository;
+import com.example.Project.UserRegistration.Repository.UserRepository;
+import com.example.Project.UserRegistration.Security.JwtUtil;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-import java.util.*;
+
+import java.util.HashSet;
+import java.util.Set;
 
 @Service
 public class UserService {
 
-    @Autowired
-    UserRepo repo;
+    private final UserRepository userRepository;
+    private final RoleRepository roleRepository;
+    private final BCryptPasswordEncoder encoder;
+    private final JwtUtil jwtUtil;
+    private final AuthenticationManager authenticationManager;
 
-    private BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(12);
-
-    public List<User>getUsers (){
-        return repo.findAll();
+    public UserService(UserRepository userRepository,
+                       RoleRepository roleRepository,
+                       BCryptPasswordEncoder encoder,
+                       JwtUtil jwtUtil,
+                       AuthenticationManager authenticationManager) {
+        this.userRepository = userRepository;
+        this.roleRepository = roleRepository;
+        this.encoder = encoder;
+        this.jwtUtil = jwtUtil;
+        this.authenticationManager = authenticationManager;
     }
 
-    public void saveUsers(User user) {
-        repo.save(user);
+    public String register(RegisterRequest request) {
+
+        if (userRepository.findByEmail(request.getEmail()).isPresent()) {
+            throw new RuntimeException("An account with this email already exists.");
+        }
+
+        Set<Role> resolvedRoles = new HashSet<>();
+
+        if (request.getRoles() == null || request.getRoles().isEmpty()) {
+
+            Role userRole = roleRepository.findByName("ROLE_USER")
+                    .orElseGet(() -> {
+                        Role r = new Role();
+                        r.setName("ROLE_USER");
+                        return roleRepository.save(r);
+                    });
+            resolvedRoles.add(userRole);
+        } else {
+            for (String roleName : request.getRoles()) {
+                Role role = roleRepository.findByName(roleName)
+                        .orElseGet(() -> {
+                            Role r = new Role();
+                            r.setName(roleName);
+                            return roleRepository.save(r);
+                        });
+                resolvedRoles.add(role);
+            }
+        }
+
+        User user = new User();
+        user.setUserName(request.getUserName());
+        user.setEmail(request.getEmail());
+        user.setPassword(encoder.encode(request.getPassword()));
+        user.setPhNo(request.getPhNo());
+        user.setCity(request.getCity());
+        user.setPincode(request.getPincode());
+        user.setState(request.getState());
+        user.setCountry(request.getCountry());
+        user.setRoles(resolvedRoles);
+
+        userRepository.save(user);
+        return "User registered successfully.";
     }
 
-    public boolean isLogin(String email, String password) {
-        User user = repo.findByEmail(email);
-        if (user == null) return false;
+    public String login(String email, String password) {
 
-        return encoder.matches(password, user.getPassword());
+        userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException(
+                        "No account found with this email."));
+
+        try {
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(email, password)
+            );
+        } catch (AuthenticationException e) {
+            throw new RuntimeException("Invalid password.");
+        }
+
+        return jwtUtil.generateToken(email);
     }
 }
