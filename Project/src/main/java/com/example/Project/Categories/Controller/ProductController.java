@@ -55,6 +55,11 @@ public class ProductController {
         return service.getById(productId);
     }
 
+    @GetMapping("/search")
+    public List<Product> getAllProducts(){
+        return service.getAllProducts();
+    }
+
     @PutMapping(value = "/{productId}", consumes = "multipart/form-data")
     public Product update(
             @PathVariable String productId,
