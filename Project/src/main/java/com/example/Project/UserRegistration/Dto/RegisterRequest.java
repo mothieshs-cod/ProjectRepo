@@ -21,6 +21,6 @@ public class RegisterRequest {
     private int pincode;
     private  String state;
     private  String country;
-    private Set<String> roles;
+    private String role;
 
 }
