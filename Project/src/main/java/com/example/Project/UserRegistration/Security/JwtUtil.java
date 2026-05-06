@@ -4,7 +4,8 @@ import com.example.Project.UserRegistration.Model.User;
 import com.example.Project.UserRegistration.Repository.UserRepository;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.io.Decoders;
+import org.springframework.beans.factory.annotation.Value;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.stereotype.Component;
 
@@ -13,12 +14,15 @@ import java.util.Date;
 
 @Component
 public class JwtUtil {
-    private static final SecretKey secretKey = Keys.secretKeyFor(SignatureAlgorithm.HS512);
+    private final SecretKey secretKey;
     private final int jwtExpirationMs = 360000000;
     private final UserRepository userRepository;
 
-    public JwtUtil(UserRepository userRepository) {
+    public JwtUtil(@Value("${jwt.secret}") String secret, UserRepository userRepository) {
+
         this.userRepository = userRepository;
+        byte[] keyBytes = Decoders.BASE64.decode(secret);
+        this.secretKey = Keys.hmacShaKeyFor(keyBytes);
     }
 
     public String generateToken(String email) {
