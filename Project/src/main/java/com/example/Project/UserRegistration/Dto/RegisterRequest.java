@@ -17,6 +17,7 @@ public class RegisterRequest {
     private String email;
     private String password;
     private long phNo;
+    private String address;
     private String city;
     private int pincode;
     private  String state;

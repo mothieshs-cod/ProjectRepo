@@ -8,6 +8,8 @@ import com.example.Project.UserRegistration.Security.JwtUtil;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -50,6 +52,7 @@ public class UserService {
         user.setEmail(request.getEmail());
         user.setPassword(encoder.encode(request.getPassword()));
         user.setPhNo(request.getPhNo());
+        user.setAddress(request.getAddress());
         user.setCity(request.getCity());
         user.setPincode(request.getPincode());
         user.setState(request.getState());
@@ -75,5 +78,33 @@ public class UserService {
         }
 
         return jwtUtil.generateToken(email);
+    }
+
+    public User getMyProfile() {
+        String currentUserEmail = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        return userRepository.findByEmail(currentUserEmail)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+    }
+
+    public String updateProfile(RegisterRequest updateRequest) {
+        String currentUserEmail = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = userRepository.findByEmail(currentUserEmail)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (updateRequest.getUserName() != null) user.setUserName(updateRequest.getUserName());
+        if (updateRequest.getPhNo() != 0) user.setPhNo(updateRequest.getPhNo());
+        if (updateRequest.getAddress() != null) user.setAddress(updateRequest.getAddress());
+        if (updateRequest.getCity() != null) user.setCity(updateRequest.getCity());
+        if (updateRequest.getState() != null) user.setState(updateRequest.getState());
+        if (updateRequest.getCountry() != null) user.setCountry(updateRequest.getCountry());
+        if (updateRequest.getPincode() != 0) user.setPincode(updateRequest.getPincode());
+
+        if (updateRequest.getPassword() != null && !updateRequest.getPassword().isEmpty()) {
+            user.setPassword(encoder.encode(updateRequest.getPassword()));
+        }
+
+        userRepository.save(user);
+        return "Profile updated successfully.";
     }
 }

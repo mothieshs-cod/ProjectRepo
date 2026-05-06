@@ -33,6 +33,9 @@ public class User {
     @NotNull(message = "Phone Number is required")
     private long phNo;
 
+    @NotNull(message = "Address is required")
+    private  String address;
+
     @NotNull(message = "City is required")
     private String city;
 
