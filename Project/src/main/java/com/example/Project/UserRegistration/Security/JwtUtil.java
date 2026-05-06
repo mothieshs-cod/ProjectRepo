@@ -14,7 +14,7 @@ import java.util.Date;
 @Component
 public class JwtUtil {
     private static final SecretKey secretKey = Keys.secretKeyFor(SignatureAlgorithm.HS512);
-    private final int jwtExpirationMs = 3600000;
+    private final int jwtExpirationMs = 360000000;
     private final UserRepository userRepository;
 
     public JwtUtil(UserRepository userRepository) {

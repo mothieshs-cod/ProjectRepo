@@ -36,12 +36,13 @@ public class UserService {
             throw new RuntimeException("An account with this email already exists.");
         }
 
-        Role role;
+        Role role = null;
 
-        if (request.getRole() == null || request.getRole().equalsIgnoreCase("ROLE_ADMIN")) {
-            role = Role.ROLE_ADMIN;
-        } else {
+        if(request.getRole() == null){
             role = Role.ROLE_USER;
+        }
+        else if (request.getRole().equalsIgnoreCase("ROLE_ADMIN")) {
+            role = Role.ROLE_ADMIN;
         }
 
         User user = new User();
