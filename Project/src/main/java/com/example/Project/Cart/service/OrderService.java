@@ -104,4 +104,16 @@ public class OrderService {
 
         return orderRepo.save(order);
     }
+
+    public Order updateOrderStatus(Long orderId, String status) {
+        Order order = orderRepo.findById(orderId)
+                .orElseThrow(() -> new RuntimeException("Order not found: " + orderId));
+
+        order.setStatus(status);
+        return orderRepo.save(order);
+    }
+
+    public List<Order> getAllOrders() {
+        return orderRepo.findAll();
+    }
 }
